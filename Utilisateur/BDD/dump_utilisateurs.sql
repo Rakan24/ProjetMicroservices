@@ -19,3 +19,4 @@ CREATE TABLE role (
     id SERIAL PRIMARY KEY,
     libelle VARCHAR (100)
 )
+
