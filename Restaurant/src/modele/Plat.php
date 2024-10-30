@@ -107,4 +107,19 @@ class Plat
 
         return $stmt;
     }
+
+    //afficher tous les plats d'un restaurant
+    public function LireToutLesPlatUnRestaurant()
+    {
+        $query = "SELECT * FROM " . $this->table . " WHERE restaurant_id=:id_restaurant";
+        $stmt = $this->conn->prepare($query);
+
+        $this->idRestaurant = htmlspecialchars(strip_tags($this->idRestaurant));
+
+        $stmt->bindParam(':id_restaurant', $this->idRestaurant);
+
+        $stmt->execute();
+
+        return $stmt;
+    }
 }

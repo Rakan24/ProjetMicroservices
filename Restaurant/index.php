@@ -47,9 +47,12 @@ if ($method == 'POST') {
         echo json_encode(["message" => "ID du plat non spécifié."]);
     }
 } elseif ($method == 'GET') {
-    if (isset($_GET['id'])) {
+    if (isset($_GET['id']) && !empty($_GET['id'])) {
         $id = $_GET['id'];
         $platController->lireUnPlat($id);
+    } elseif (isset($_GET['idRestaurant']) && !empty($_GET['idRestaurant'])) {
+        $idRestaurant = $_GET['idRestaurant'];
+        $platController->LireToutLesPlatUnRestaurant($idRestaurant);
     } else {
         // Lire tous les plats
         $platController->lirePlats();
