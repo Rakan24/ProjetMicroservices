@@ -82,4 +82,18 @@ class PlatController
 
         echo json_encode($plat);
     }
+
+    //afficher tous les plats d'un restaurant
+    public function LireToutLesPlatUnRestaurant($idRestaurant)
+    {
+        $this->plat->idRestaurant = $idRestaurant;
+        $stmt = $this->plat->LireToutLesPlatUnRestaurant();
+        $plat = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $plat[] = $row;
+        }
+
+        echo json_encode($plat);
+    }
 }
