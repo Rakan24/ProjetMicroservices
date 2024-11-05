@@ -1,6 +1,6 @@
 <?php
 
-require_once 'models/CommandeModele.php';
+require_once __DIR__ . '/../Modele/CommandeModele.php';
 
 class CommandeControleur
 {
@@ -8,13 +8,13 @@ class CommandeControleur
     {
         if (isset($_POST['creer'])) {
             $commandeModele = new CommandeModele();
-            $id_client = $_SESSION['id_client']; 
-            $date_livraison = $_POST['date_livraison'] ?? date('Y-m-d H:i:s');
+            $id_client = 1; //$_SESSION['id_client']; 
+            $date_livraison = date('Y-m-d H:i:s'); //$_POST['date_livraison'] ?? date('Y-m-d H:i:s');
             
             $commandeModele->passerCommande($id_client, $date_livraison);
         }
         
-        require_once('src/views/ViewCreationCommande.php');
+        require_once __DIR__ . '/../Vue/ViewCreationCommande.php';
     }
 
     public function handleUpdateStatut($id_commande, $nouveau_statut)
@@ -37,13 +37,50 @@ class CommandeControleur
         }
     }
 
+
+
+
+
+
+
+
     public function handleShowCommandesPassees()
     {
         $commandeModele = new CommandeModele();
-        $id_client = $_SESSION['id_client'];
+        $id_client = 1;// $_SESSION['id_client'];
         
         $commandesPassees = $commandeModele->afficherCommandesPassees($id_client);
-
-        require_once('src/views/ViewCommandesPassees.php');
+    
+        require_once __DIR__ . '/../Vue/ViewCommandesPassees.php';
     }
+
+    public function handleShowCommandesEnCours()
+    {
+        $commandeModele = new CommandeModele();
+        $id_client = 1;// $_SESSION['id_client'];
+        
+        $commandesEnCours = $commandeModele->afficherCommandesEnCours($id_client);
+    
+        require_once __DIR__ . '/../Vue/ViewCommandesEnCours.php';
+    }
+
+    public function handleShowCommandesAPreparer()
+    {
+        $commandeModele = new CommandeModele();
+        $id_restaurant = 1;// $_SESSION['id_restaurant'];
+        
+        $commandesEnCours = $commandeModele->afficherCommandesAPreparer($id_restaurant);
+    
+        require_once __DIR__ . '/../Vue/ViewCommandesAPreparer.php';
+    }
+
+    public function handleShowCommandesALivrer()
+    {
+        $commandeModele = new CommandeModele();
+        
+        $commandesEnCours = $commandeModele->afficherCommandesALivrer();
+    
+        require_once __DIR__ . '/../Vue/ViewCommandesALivrer.php';
+    }
+    
 }

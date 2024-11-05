@@ -1,0 +1,32 @@
+Test historique commandes passées : 
+http://localhost/ProjetMicroservices/index.php?url=Commande/handleShowCommandesPassees
+
+Test historique commandes passées : 
+http://localhost/ProjetMicroservices/index.php?url=Commande/handleShowCommandesEnCours
+
+Test commandes à préparer : 
+http://localhost/ProjetMicroservices/index.php?url=Commande/handleShowCommandesAPreparer
+
+Test commandes à livrer : 
+http://localhost/ProjetMicroservices/index.php?url=Commande/handleShowCommandesALivrer
+
+
+Test Passer une commande : 
+http://localhost/ProjetMicroservices/Commande/Src/Vue/ViewCreationCommande.php
+
+Test changer statut d'une commande : 
+
+
+
+
+
+A faire pour plus tard : 
+
+
+- Surement rajouter l'id du restaurant dans la commande car pour le cuisinier qui doit changer le statut de la commande 
+il va falloir afficher toutes les commandes avec un statut = 1 ou 2 et ou id_Restaurant = Au restaurant du cuisinier
+
+Donc rajouter 2 vues et 2 méthodes 
+
+1 et 1 pour le cuisinier 
+1 et 1 pour le livreur 

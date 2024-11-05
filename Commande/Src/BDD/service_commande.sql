@@ -17,6 +17,7 @@ INSERT INTO `statuts` (`nom_statut`) VALUES
 CREATE TABLE IF NOT EXISTS `commandes` (
   `id_commande` INT(11) NOT NULL AUTO_INCREMENT,
   `id_client` INT(11) NOT NULL,
+  `id_restaurant` INT(11) NOT NULL,
   `date_livraison` DATETIME NOT NULL,
   `date_commande` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `id_statut` INT(11) DEFAULT NULL,  -- permet NULL pour la suppression de la référence
