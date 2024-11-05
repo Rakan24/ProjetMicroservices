@@ -1,5 +1,7 @@
 <?php
 
+require_once 'config.php';  // Inclusion du fichier de configuration
+
 class Database
 {
     private static $bdd = null;
@@ -14,8 +16,18 @@ class Database
 
     private static function setBdd()
     {
-        self::$bdd = new PDO('mysql:host=localhost;dbname=bdd_commande;charset=utf8', 'root', '');
-        self::$bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+        try {
+            // Utilisation des constantes définies dans config.php pour la connexion
+            $dsn = "mysql:host=" . DB_COMMANDE_HOST . ";dbname=" . DB_COMMANDE_NAME . ";charset=" . DB_CHARSET;
+            self::$bdd = new PDO($dsn, DB_COMMANDE_USER, DB_COMMANDE_PASS);
+            self::$bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+        } catch (PDOException $e) {
+            if (DEBUG) {
+                die("Erreur de connexion à la base de données : " . $e->getMessage());
+            } else {
+                die("Erreur de connexion à la base de données.");
+            }
+        }
     }
 }
 ?>
