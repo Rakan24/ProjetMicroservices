@@ -40,4 +40,29 @@ class Restaurant
         }
         return false;
     }
+
+    //lire les restaurants
+    public function lireRestaurants()
+    {
+        $query = "SELECT * FROM " . $this->table;
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+
+        return $stmt;
+    }
+
+    //lire un plat
+    public function lireUnRestaurant()
+    {
+        $query = "SELECT * FROM " . $this->table . " WHERE id=:id";
+        $stmt = $this->conn->prepare($query);
+
+        $this->id = htmlspecialchars(strip_tags($this->id));
+
+        $stmt->bindParam(':id', $this->id);
+
+        $stmt->execute();
+
+        return $stmt;
+    }
 }

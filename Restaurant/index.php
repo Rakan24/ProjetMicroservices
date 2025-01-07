@@ -47,15 +47,16 @@ if ($method == 'POST') {
         echo json_encode(["message" => "ID du plat non spécifié."]);
     }
 } elseif ($method == 'GET') {
-    if (isset($_GET['id']) && !empty($_GET['id'])) {
-        $id = $_GET['id'];
+    if (isset($_GET['idPlat']) && !empty($_GET['idPlat'])) {
+        $id = $_GET['idPlat'];
         $platController->lireUnPlat($id);
     } elseif (isset($_GET['idRestaurant']) && !empty($_GET['idRestaurant'])) {
         $idRestaurant = $_GET['idRestaurant'];
         $platController->LireToutLesPlatUnRestaurant($idRestaurant);
+        $restaurantController->lireUnRestaurant($idRestaurant);
     } else {
         // Lire tous les plats
-        $platController->lirePlats();
+        $restaurantController->lireRestaurants();
     }
 } else {
     echo json_encode(["message" => "Méthode non autorisée."]);

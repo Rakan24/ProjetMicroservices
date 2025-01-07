@@ -26,4 +26,31 @@ class RestaurantController
             echo json_encode(["message" => "Impossible de créer le Restaurant."]);
         }
     }
+
+    // Lire tous les plats
+    public function lireRestaurants()
+    {
+        $stmt = $this->restaurant->lireRestaurants();
+        $restaurants = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $restaurants[] = $row;
+        }
+
+        echo json_encode($restaurants);
+    }
+
+    //lire un plat
+    public function lireUnRestaurant($id)
+    {
+        $this->restaurant->id = $id;
+        $stmt = $this->restaurant->lireUnRestaurant();
+        $restaurant = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $restaurant[] = $row;
+        }
+
+        echo json_encode($restaurant);
+    }
 }
