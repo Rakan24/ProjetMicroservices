@@ -2,11 +2,12 @@
 <html>
 <head>
     <title>Liste des Livraisons</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/public/css/styles.css">
+    <script src="/public/js/livraison.js" defer></script>
 </head>
 <body>
     <h1>Liste des Livraisons</h1>
-    <table>
+    <table id="livraisonsTable">
         <thead>
             <tr>
                 <th>ID Livraison</th>
@@ -18,22 +19,7 @@
             </tr>
         </thead>
         <tbody>
-            <?php
-            require_once '../controllers/LivraisonController.php';
-            $controller = new LivraisonController();
-            $livraisons = json_decode($controller->getAllLivraisons(), true)['data'];
-
-            foreach ($livraisons as $livraison) {
-                echo "<tr>
-                    <td>{$livraison['id_livraison']}</td>
-                    <td>{$livraison['id_commande']}</td>
-                    <td>{$livraison['id_livreur']}</td>
-                    <td>{$livraison['statut_livraison']}</td>
-                    <td>{$livraison['position_actuelle']}</td>
-                    <td>{$livraison['date_livraison_estimee']}</td>
-                </tr>";
-            }
-            ?>
+            <!-- Les données sont remplies via JS -->
         </tbody>
     </table>
 </body>
