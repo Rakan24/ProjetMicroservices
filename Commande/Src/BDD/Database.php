@@ -1,6 +1,6 @@
 <?php
 
-require_once 'config.php';  // Inclusion du fichier de configuration
+require_once __DIR__ . '/../../../Config.php'; // Inclusion du fichier de configuration
 
 class Database
 {

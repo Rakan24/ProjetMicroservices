@@ -44,9 +44,9 @@ class Routeur
 
     private function redirectToDefault()
     {
-        // Redirige vers le contrôleur par défaut (ex: page d'accueil de commandes)
-        require_once 'Commande/Src/Controleur/CommandeControleur.php';
-        $controller = new CommandeControleur();
-        $controller->handleCommandeCreation();
+        // Définir la page par défaut, ici la page d'accueil du client, ou une page d'accueil générique
+        require_once 'Commande/Src/Controleur/AccueilControleur.php';  // Changer si nécessaire
+        $controller = new AccueilControleur();  // Assurez-vous que vous avez ce contrôleur
+        $controller->handleAccueil();  // Appeler la méthode pour la page d'accueil
     }
 }
