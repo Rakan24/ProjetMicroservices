@@ -1,33 +1,40 @@
 <?php
-include '../config/db.php'; 
-include '../models/Livreur.php'; 
-include '../models/Livraison.php'; 
+require_once '../models/LivraisonModel.php';
 
 class LivraisonController {
-    private $livreurModel;
     private $livraisonModel;
 
-    public function __construct($pdo) {
-        $this->livreurModel = new Livreur($pdo);
-        $this->livraisonModel = new Livraison($pdo);
+    public function __construct() {
+        $this->livraisonModel = new LivraisonModel();
     }
 
-    public function affecterLivraison($id_livraison) {
-        // Récupérer un livreur disponible
-        $livreur = $this->livreurModel->getLivreurDispo();
+    // Récupérer toutes les livraisons
+    public function getAllLivraisons() {
+        $livraisons = $this->livraisonModel->getAllLivraisons();
+        echo json_encode(['status' => 200, 'data' => $livraisons]);
+    }
 
-        if ($livreur) {
-            $id_livreur = $livreur['id_livreur']; 
-
-            // Affecter la livraison au livreur
-            if ($this->livraisonModel->affecterLivraison($id_livraison, $id_livreur)) {
-                return ['message' => 'Livraison affectée avec succès au livreur ' . $livreur['nom']];
-            } else {
-                return ['message' => 'Erreur lors de l\'affectation de la livraison'];
-            }
+    // Créer une livraison
+    public function createLivraison($data) {
+        if ($this->livraisonModel->createLivraison($data)) {
+            echo json_encode(['status' => 201, 'message' => 'Livraison créée avec succès']);
         } else {
-            return ['message' => 'Aucun livreur disponible']; // Aucune dispo de livreur
+            echo json_encode(['status' => 500, 'message' => 'Erreur lors de la création']);
         }
     }
+
+    // Mettre à jour une livraison
+    public function updateLivraison($id, $data) {
+        if ($this->livraisonModel->updateLivraison($id, $data)) {
+            echo json_encode(['status' => 200, 'message' => 'Mise à jour réussie']);
+        } else {
+            echo json_encode(['status' => 500, 'message' => 'Erreur lors de la mise à jour']);
+        }
+    }
+
+    // Récupérer les livreurs disponibles
+    public function getLivreursDisponibles() {
+        $livreurs = $this->livraisonModel->getLivreursDisponibles();
+        echo json_encode(['status' => 200, 'data' => $livreurs]);
+    }
 }
-?>
