@@ -1,9 +1,27 @@
 <?php
 
-require_once __DIR__ . '/../BDD/Database.php';
-
 class CommandeModele
 {
+
+    private $conn;
+    private $table = 'commandes';
+
+    public $id_commande;
+    public $id_client;
+    public $date_livraison;
+    public $date_commande;
+    public $id_satut;
+    public $id_restaurant;
+    public $id_livreur;
+
+    public function __construct($db)
+    {
+        $this->conn = $db;
+    }
+
+
+
+
     // Définition des constantes de statut
     const STATUT_EN_ATTENTE = 1;
     const STATUT_EN_PREPARATION = 2;
@@ -20,160 +38,156 @@ class CommandeModele
     #                        INSERT / UPDATE / DELETE                         #
     #-------------------------------------------------------------------------#
 
-    public function passerCommande($id_client, $date_livraison)
+    // Créer une nouvelle commande
+    public function creerCommande()
     {
-        try {
-            
-            $stmt = $this->getBdd()->prepare("INSERT INTO commandes (id_client, date_livraison, id_statut) VALUES (?, ?, ?)");
-            $stmt->bindParam(1, $id_client);
-            $stmt->bindParam(2, $date_livraison);
-            $stmt->bindValue(3, self::STATUT_EN_ATTENTE, PDO::PARAM_INT); // Utilisation de la constante
-            $stmt->execute();
+        $query = "INSERT INTO " . $this->table . " (id_client, date_livraison, id_statut, id_restaurant, id_livreur) 
+                  VALUES (:id_client, :date_livraison, :id_statut, :id_restaurant, :id_livreur)";
 
-            echo "<script>alert('Commande créée !'); document.location.href='?url=ViewAccueil';</script>";
-        } catch (PDOException $e) {
-            echo "Erreur lors de l'exécution de la requête : " . $e->getMessage();
+        $stmt = $this->conn->prepare($query);
+
+        // Sécurisation des données
+        $this->id_client = htmlspecialchars(strip_tags($this->id_client));
+        $this->date_livraison = htmlspecialchars(strip_tags($this->date_livraison));
+        $this->id_satut = htmlspecialchars(strip_tags($this->id_satut));
+        $this->id_restaurant = htmlspecialchars(strip_tags($this->id_restaurant));
+        $this->id_livreur = htmlspecialchars(strip_tags($this->id_livreur));
+
+        // Liaison des paramètres
+        $stmt->bindParam(':id_client', $this->id_client);
+        $stmt->bindParam(':date_livraison', $this->date_livraison);
+        $stmt->bindValue(':id_statut', self::STATUT_EN_ATTENTE, PDO::PARAM_INT); // Utilisation de la constante
+        $stmt->bindParam(':id_restaurant', $this->id_restaurant);
+        $stmt->bindParam(':id_livreur', $this->id_livreur);
+
+        // Exécution de la requête
+        if ($stmt->execute()) {
+            return true;
         }
+        return false;
     }
 
-    public function mettreAJourStatut($id_commande, $nouveau_statut)
+    public function mettreAJourStatut()
     {
-        try {
-            $stmt = $this->getBdd()->prepare("UPDATE commandes SET id_statut = ? WHERE id_commande = ?");
-            $stmt->bindParam(1, $nouveau_statut, PDO::PARAM_INT);
-            $stmt->bindParam(2, $id_commande, PDO::PARAM_INT);
-            $stmt->execute();
-            echo "Le statut de la commande a été mis à jour avec succès.";
-        } catch (PDOException $e) {
-            echo "Erreur lors de la mise à jour du statut : " . $e->getMessage();
+        $query = "UPDATE " . $this->table . " SET id_statut = :id_statut WHERE id_commande = :id_commande";
+    
+        $stmt = $this->conn->prepare($query);
+    
+        // Sécurisation des données
+        $this->id_commande = htmlspecialchars(strip_tags($this->id_commande));
+        $this->id_statut = htmlspecialchars(strip_tags($this->id_statut));
+    
+        // Liaison des paramètres
+        $stmt->bindParam(':id_statut', $this->id_statut, PDO::PARAM_INT);
+        $stmt->bindParam(':id_commande', $this->id_commande, PDO::PARAM_INT);
+    
+        // Exécution de la requête
+        if ($stmt->execute()) {
+            return true;
         }
+        return false;
     }
 
-    public function annulerCommande($id_commande)
+    public function annulerCommande()
     {
-        try {
-            $stmt = $this->getBdd()->prepare("DELETE FROM commandes WHERE id_commande = ?");
-            $stmt->bindParam(1, $id_commande);
-            $stmt->execute();
-            echo "<script>alert('Commande annulée !'); document.location.href='?url=ViewAccueil';</script>";
-        } catch (PDOException $e) {
-            echo "Erreur lors de l'exécution de la requête : " . $e->getMessage();
+        $query = "DELETE FROM " . $this->table . " WHERE id_commande = :id_commande";
+    
+        $stmt = $this->conn->prepare($query);
+    
+        // Sécurisation des données
+        $this->id_commande = htmlspecialchars(strip_tags($this->id_commande));
+    
+        // Liaison des paramètres
+        $stmt->bindParam(':id_commande', $this->id_commande, PDO::PARAM_INT);
+    
+        // Exécution de la requête
+        if ($stmt->execute()) {
+            return true;
         }
+        return false;
     }
 
     #-------------------------------------------------------------------------#
     #                           FONCTIONS DE VUES                             #
     #-------------------------------------------------------------------------#
 
-    public function afficherCommandesPassees($id_client = null)
+    public function afficherCommandesPassees()
     {
-        try {
-
-            // Vérification de la session pour id_client
-            $id_client = $_SESSION['id_client'] ?? null;
-            if (!$id_client) {
-                // Rediriger vers la page d'accueil si l'utilisateur n'est pas un livreur
-                header("Location: index.php");
-                exit;
-            }
-
-            $stmt = $this->getBdd()->prepare("SELECT * FROM commandes WHERE id_client = ? AND id_statut = ?");
-            $stmt->bindParam(1, $id_client, PDO::PARAM_INT);
-            $stmt->bindValue(2, self::STATUT_LIVREE, PDO::PARAM_INT); // Utilisation de la constante
-            $stmt->execute();
+        $query = "SELECT * FROM " . $this->table . " WHERE id_client = :id_client AND id_statut = :id_statut";
+        $stmt = $this->conn->prepare($query);
     
-            $commandesPassees = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $commandesPassees; // Retourne les résultats
-        } catch (PDOException $e) {
-            echo "Erreur lors de la récupération des commandes : " . $e->getMessage();
-            return []; // Retourne un tableau vide en cas d'erreur
-        }
+        // Sécurisation des données
+        $this->id_client = htmlspecialchars(strip_tags($this->id_client));
+    
+        // Liaison des paramètres
+        $stmt->bindParam(':id_client', $this->id_client, PDO::PARAM_INT);
+        $stmt->bindValue(':id_statut', self::STATUT_LIVREE, PDO::PARAM_INT); // Utilisation de la constante
+    
+        // Exécution de la requête
+        $stmt->execute();
+    
+        // Retourne le statement pour que l'appelant puisse récupérer les données
+        return $stmt;
     }
 
-    public function afficherCommandesEnCours($id_client = null)
+    public function afficherCommandesEnCours()
     {
-        try {
-
-            // Vérification de la session pour id_client
-            $id_client = $_SESSION['id_client'] ?? null;
-            if (!$id_client) {
-                // Rediriger vers la page d'accueil si l'utilisateur n'est pas un livreur
-                header("Location: index.php");
-                exit;
-            }
-
-            $stmt = $this->getBdd()->prepare("SELECT * FROM commandes WHERE id_client = ? AND id_statut <> ?");
-            $stmt->bindParam(1, $id_client, PDO::PARAM_INT);
-            $stmt->bindValue(2, self::STATUT_LIVREE, PDO::PARAM_INT); // Utilisation de la constante
-            $stmt->execute();
+        $query = "SELECT * FROM " . $this->table . " WHERE id_client = :id_client AND id_statut <> :id_statut";
+        $stmt = $this->conn->prepare($query);
     
-            $commandesEnCours = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $commandesEnCours; // Retourne les résultats
-        } catch (PDOException $e) {
-            echo "Erreur lors de la récupération des commandes : " . $e->getMessage();
-            return []; // Retourne un tableau vide en cas d'erreur
-        }
+        // Sécurisation des données
+        $this->id_client = htmlspecialchars(strip_tags($this->id_client));
+    
+        // Liaison des paramètres
+        $stmt->bindParam(':id_client', $this->id_client, PDO::PARAM_INT);
+        $stmt->bindValue(':id_statut', self::STATUT_LIVREE, PDO::PARAM_INT); // Utilisation de la constante
+    
+        // Exécution de la requête
+        $stmt->execute();
+    
+        // Retourne le statement pour que l'appelant puisse récupérer les données
+        return $stmt;
     }
 
-    public function afficherCommandesAPreparer($id_restaurant = null)
+    public function afficherCommandesAPreparer()
     {
-        try {
-
-            // Vérification de la session pour id_restaurant
-            $id_restaurant = $_SESSION['id_restaurant'] ?? null;
-            if (!$id_restaurant) {
-                // Rediriger vers la page d'accueil si l'utilisateur n'est pas un livreur
-                header("Location: index.php");
-                exit;
-            }
-
-            $stmt = $this->getBdd()->prepare("SELECT * FROM commandes WHERE id_restaurant = ? AND (id_statut = ? OR id_statut = ? OR id_statut = ?)");
-            $stmt->bindParam(1, $id_restaurant, PDO::PARAM_INT);
-            $stmt->bindValue(2, self::STATUT_EN_ATTENTE, PDO::PARAM_INT); // Utilisation de la constante
-            $stmt->bindValue(3, self::STATUT_EN_PREPARATION, PDO::PARAM_INT); // Utilisation de la constante
-            $stmt->bindValue(4, self::STATUT_TERMINEE, PDO::PARAM_INT); // Utilisation de la constante
-            $stmt->execute();
+        $query = "SELECT * FROM " . $this->table . " WHERE id_restaurant = :id_restaurant AND (id_statut = :statut_en_attente OR id_statut = :statut_en_preparation OR id_statut = :statut_terminee)";
+        $stmt = $this->conn->prepare($query);
     
-            $commandesAPreparer = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $commandesAPreparer; // Retourne les résultats
-        } catch (PDOException $e) {
-            echo "Erreur lors de la récupération des commandes : " . $e->getMessage();
-            return []; // Retourne un tableau vide en cas d'erreur
-        }
+        // Sécurisation des données
+        $this->id_restaurant = htmlspecialchars(strip_tags($this->id_restaurant));
+    
+        // Liaison des paramètres
+        $stmt->bindParam(':id_restaurant', $this->id_restaurant, PDO::PARAM_INT);
+        $stmt->bindValue(':statut_en_attente', self::STATUT_EN_ATTENTE, PDO::PARAM_INT);
+        $stmt->bindValue(':statut_en_preparation', self::STATUT_EN_PREPARATION, PDO::PARAM_INT);
+        $stmt->bindValue(':statut_terminee', self::STATUT_TERMINEE, PDO::PARAM_INT);
+    
+        // Exécution de la requête
+        $stmt->execute();
+    
+        // Retourne le statement pour que l'appelant puisse récupérer les données
+        return $stmt;
     }
 
     public function afficherCommandesALivrer()
     {
-        // Vérification de la session pour id_livreur
-        $idLivreur = $_SESSION['id_livreur'] ?? null;
-        if (!$idLivreur) {
-            // Rediriger vers la page d'accueil si l'utilisateur n'est pas un livreur
-            header("Location: index.php");
-            exit;
-        }
+        $query = "SELECT * FROM " . $this->table . " WHERE id_statut = :statut_terminee OR (id_statut = :statut_en_livraison AND id_livreur = :id_livreur)";
+        $stmt = $this->conn->prepare($query);
     
-        try {
-            // Préparer la requête avec des conditions distinctes
-            $sql = "SELECT * FROM commandes 
-                    WHERE id_statut = :statut_terminee 
-                       OR (id_statut = :statut_en_livraison AND id_livreur = :id_livreur)";
-            $stmt = $this->getBdd()->prepare($sql);
+        // Sécurisation des données
+        $this->id_livreur = htmlspecialchars(strip_tags($this->id_livreur));
     
-            // Bind des paramètres
-            $stmt->bindValue(':statut_terminee', self::STATUT_TERMINEE, PDO::PARAM_INT);
-            $stmt->bindValue(':statut_en_livraison', self::STATUT_EN_LIVRAISON, PDO::PARAM_INT);
-            $stmt->bindValue(':id_livreur', $idLivreur, PDO::PARAM_INT);
+        // Liaison des paramètres
+        $stmt->bindValue(':statut_terminee', self::STATUT_TERMINEE, PDO::PARAM_INT);
+        $stmt->bindValue(':statut_en_livraison', self::STATUT_EN_LIVRAISON, PDO::PARAM_INT);
+        $stmt->bindParam(':id_livreur', $this->id_livreur, PDO::PARAM_INT);
     
-            // Exécuter la requête
-            $stmt->execute();
+        // Exécution de la requête
+        $stmt->execute();
     
-            // Récupérer et retourner les commandes
-            $commandesALivrer = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $commandesALivrer;
-        } catch (PDOException $e) {
-            echo "Erreur lors de la récupération des commandes : " . $e->getMessage();
-            return []; // Retourne un tableau vide en cas d'erreur
-        }
+        // Retourne le statement pour que l'appelant puisse récupérer les données
+        return $stmt;
     }
     
 }
