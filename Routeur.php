@@ -6,47 +6,60 @@ class Routeur
 
     public function __construct($url)
     {
-        $this->url = $url;
+        // Filtrer et sécuriser l'URL pour éviter l'injection de code
+        $this->url = array_map('htmlspecialchars', $url);
     }
 
     public function routerRequete()
     {
         if (empty($this->url)) {
-            // Page d'accueil par défaut si aucune URL spécifiée
+            // Default homepage if no URL is specified
             $this->redirectToDefault();
-            return; // Terminer ici pour éviter d'exécuter le reste
+            return; // Stop execution here to avoid running the rest
         }
 
-        // Premier segment de l'URL pour déterminer le service
+        // First segment of the URL determines the service
         $service = ucfirst(strtolower($this->url[0])); // Ex: 'Commande', 'Livraison'
-        $action = $this->url[1] ?? null;              // Action : 'createCommande', etc.
-        $params = array_slice($this->url, 2);         // Récupère tous les paramètres restants
+        $action = $this->url[1] ?? null;              // Action: 'createCommande', etc.
+        $params = array_slice($this->url, 2);         // Retrieve all remaining parameters
 
-        // Construire le chemin vers le contrôleur
+        // Build the path to the controller
         $controllerClass = $service . 'Controleur';
         $controllerPath = "$service/Src/Controleur/$controllerClass.php";
 
-        // Vérifier si le contrôleur existe pour le service spécifié
+        // Check if the controller exists for the specified service
         if (!file_exists($controllerPath)) {
-            throw new Exception("Service non reconnu : " . htmlspecialchars($service));
+            throw new Exception("Service non reconnu : " . $service);
         }
 
+        // Require the controller
         require_once $controllerPath;
+
+        // Ensure the class exists after including the file
+        if (!class_exists($controllerClass)) {
+            throw new Exception("Le contrôleur spécifié est introuvable : " . $controllerClass);
+        }
+
         $controller = new $controllerClass();
 
-        // Routage basé sur l'action
-        if (method_exists($controller, $action)) {
+        // Routing based on the action
+        if ($action && method_exists($controller, $action)) {
             call_user_func_array([$controller, $action], $params);
         } else {
-            throw new Exception("Action non reconnue : " . htmlspecialchars($action));
+            throw new Exception("Action non reconnue : " . ($action ?? 'Aucune action spécifiée'));
         }
     }
 
     private function redirectToDefault()
     {
-        // Définir la page par défaut, ici la page d'accueil du client, ou une page d'accueil générique
-        require_once 'Commande/Src/Controleur/AccueilControleur.php';  // Changer si nécessaire
-        $controller = new AccueilControleur();  // Assurez-vous que vous avez ce contrôleur
-        $controller->handleAccueil();  // Appeler la méthode pour la page d'accueil
+        // Check if the current URL is already the default homepage
+        if (basename($_SERVER['PHP_SELF']) === 'index.php') {
+            // Serve homepage content or exit without redirection
+            return;
+        }
+
+        // Redirect to the homepage (index.php)
+        header('Location: index.php');
+        exit; // Ensure no further code is executed after the redirect
     }
 }
