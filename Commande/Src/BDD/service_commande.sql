@@ -1,3 +1,6 @@
+-- Suppression de la table `commandes` si elle existe déjà
+DROP TABLE IF EXISTS `commandes`;
+
 -- Création de la table `statuts`
 CREATE TABLE IF NOT EXISTS `statuts` (
   `id_statut` INT(11) NOT NULL AUTO_INCREMENT,
@@ -24,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `commandes` (
   `id_statut` INT(11) DEFAULT NULL,  -- permet NULL pour la suppression de la référence
   PRIMARY KEY (`id_commande`),
 
-  -- Clé étrangère pour lier `statut_id` à `id_statut` dans la table `statuts`
+  -- Clé étrangère pour lier `id_statut` à `id_statut` dans la table `statuts`
   CONSTRAINT `fk_statut`
     FOREIGN KEY (`id_statut`) REFERENCES `statuts`(`id_statut`)
     ON DELETE SET NULL ON UPDATE CASCADE
