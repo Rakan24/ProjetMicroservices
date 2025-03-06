@@ -1,29 +1,96 @@
 version: '3.8'
 
 services:
-  database:
-    image: postgres:13
-    restart: always
-    environment:
-      POSTGRES_DB: microservices
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-    volumes:
-      - db_data:/var/lib/postgresql/data
+  commande-service:
+    build: ./Commande
     ports:
-      - "5432:5432"
-
-  backend:
-    build: ./backend
-    restart: always
+      - "8001:80"
+    environment:
+      - DATABASE_HOST=commande-db
+      - DATABASE_NAME=commande_db
+      - DATABASE_USER=commande_user
+      - DATABASE_PASSWORD=commande_pass
     depends_on:
-      - database
+      - commande-db
+
+  commande-db:
+    image: mysql:8.0
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/microservices
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE=commande_db
+      MYSQL_USER=commande_user
+      MYSQL_PASSWORD=commande_pass
+    volumes:
+      - commande-db-data:/var/lib/mysql
+
+  livraison-service:
+    build: ./Livraison
     ports:
-      - "8080:8080"
+      - "8002:80"
+    environment:
+      - DATABASE_HOST=livraison-db
+      - DATABASE_NAME=livraison_db
+      - DATABASE_USER=livraison_user
+      - DATABASE_PASSWORD=livraison_pass
+    depends_on:
+      - livraison-db
+
+  livraison-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD=root_password
+      MYSQL_DATABASE=livraison_db
+      MYSQL_USER=livraison_user
+      MYSQL_PASSWORD=livraison_pass
+    volumes:
+      - livraison-db-data:/var/lib/mysql
+
+  restaurant-service:
+    build: ./Restaurant
+    ports:
+      - "8003:80"
+    environment:
+      - DATABASE_HOST=restaurant-db
+      - DATABASE_NAME=restaurant_db
+      - DATABASE_USER=restaurant_user
+      - DATABASE_PASSWORD=restaurant_pass
+    depends_on:
+      - restaurant-db
+
+  restaurant-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD=root_password
+      MYSQL_DATABASE=restaurant_db
+      MYSQL_USER=restaurant_user
+      MYSQL_PASSWORD=restaurant_pass
+    volumes:
+      - restaurant-db-data:/var/lib/mysql
+
+  utilisateur-service:
+    build: ./Utilisateur
+    ports:
+      - "8004:80"
+    environment:
+      - DATABASE_HOST=utilisateur-db
+      - DATABASE_NAME=utilisateur_db
+      - DATABASE_USER=utilisateur_user
+      - DATABASE_PASSWORD=utilisateur_pass
+    depends_on:
+      - utilisateur-db
+
+  utilisateur-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD=root_password
+      MYSQL_DATABASE=utilisateur_db
+      MYSQL_USER=utilisateur_user
+      MYSQL_PASSWORD=utilisateur_pass
+    volumes:
+      - utilisateur-db-data:/var/lib/mysql
 
 volumes:
-  db_data:
+  commande-db-data:
+  livraison-db-data:
+  restaurant-db-data:
+  utilisateur-db-data:
