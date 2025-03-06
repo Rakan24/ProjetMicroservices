@@ -4,7 +4,7 @@ services:
   commande-service:
     build: ./Commande
     ports:
-      - "8001:80"
+      - "8001:8080"  # Correction du port Spring Boot
     environment:
       - DATABASE_HOST=commande-db
       - DATABASE_NAME=commande_db
@@ -16,17 +16,17 @@ services:
   commande-db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE=commande_db
-      MYSQL_USER=commande_user
-      MYSQL_PASSWORD=commande_pass
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=commande_db
+      - MYSQL_USER=commande_user
+      - MYSQL_PASSWORD=commande_pass
     volumes:
       - commande-db-data:/var/lib/mysql
 
   livraison-service:
     build: ./Livraison
     ports:
-      - "8002:80"
+      - "8002:8080"  # Correction du port Spring Boot
     environment:
       - DATABASE_HOST=livraison-db
       - DATABASE_NAME=livraison_db
@@ -38,17 +38,17 @@ services:
   livraison-db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD=root_password
-      MYSQL_DATABASE=livraison_db
-      MYSQL_USER=livraison_user
-      MYSQL_PASSWORD=livraison_pass
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=livraison_db
+      - MYSQL_USER=livraison_user
+      - MYSQL_PASSWORD=livraison_pass
     volumes:
       - livraison-db-data:/var/lib/mysql
 
   restaurant-service:
     build: ./Restaurant
     ports:
-      - "8003:80"
+      - "8003:8080"  # Correction du port Spring Boot
     environment:
       - DATABASE_HOST=restaurant-db
       - DATABASE_NAME=restaurant_db
@@ -60,17 +60,17 @@ services:
   restaurant-db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD=root_password
-      MYSQL_DATABASE=restaurant_db
-      MYSQL_USER=restaurant_user
-      MYSQL_PASSWORD=restaurant_pass
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=restaurant_db
+      - MYSQL_USER=restaurant_user
+      - MYSQL_PASSWORD=restaurant_pass
     volumes:
       - restaurant-db-data:/var/lib/mysql
 
   utilisateur-service:
     build: ./Utilisateur
     ports:
-      - "8004:80"
+      - "8004:8080"  # Correction du port Spring Boot
     environment:
       - DATABASE_HOST=utilisateur-db
       - DATABASE_NAME=utilisateur_db
@@ -82,10 +82,10 @@ services:
   utilisateur-db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD=root_password
-      MYSQL_DATABASE=utilisateur_db
-      MYSQL_USER=utilisateur_user
-      MYSQL_PASSWORD=utilisateur_pass
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=utilisateur_db
+      - MYSQL_USER=utilisateur_user
+      - MYSQL_PASSWORD=utilisateur_pass
     volumes:
       - utilisateur-db-data:/var/lib/mysql
 
