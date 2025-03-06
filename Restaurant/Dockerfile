@@ -1,16 +1,11 @@
-FROM maven:3.8.1-openjdk-17-slim AS build
+# Utilisation de l'image PHP avec Apache
+FROM php:8.0-apache
 
-WORKDIR /app
+# Activer les modules nécessaires pour Apache
+RUN apt-get update && apt-get install -y libpng-dev libjpeg-dev libfreetype6-dev && docker-php-ext-configure gd --with-freetype --with-jpeg && docker-php-ext-install gd
 
-COPY pom.xml .
-RUN mvn dependency:go-offline
-COPY src ./src
-RUN mvn clean package -DskipTests
+# Copie des fichiers du projet dans le répertoire de travail du conteneur
+COPY . /var/www/html/
 
-FROM openjdk:17-jdk-slim
-
-WORKDIR /app
-COPY --from=build /app/target/restaurant-service.jar /app/restaurant-service.jar
-
-EXPOSE 8080
-CMD ["java", "-jar", "restaurant-service.jar"]
+# Exposer le port par défaut Apache
+EXPOSE 80
