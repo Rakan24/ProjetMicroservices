@@ -1,32 +1,11 @@
-# Étape 1 : Construire l'application
-FROM maven:3.8.1-openjdk-17-slim AS build
+# Utilisation de l'image PHP avec Apache
+FROM php:8.0-apache
 
-# Définir le répertoire de travail
-WORKDIR /app
+# Activer les modules nécessaires pour Apache
+RUN apt-get update && apt-get install -y libpng-dev libjpeg-dev libfreetype6-dev && docker-php-ext-configure gd --with-freetype --with-jpeg && docker-php-ext-install gd
 
-# Copier le fichier pom.xml et télécharger les dépendances Maven
-COPY pom.xml .
+# Copie des fichiers du projet dans le répertoire de travail du conteneur
+COPY . /var/www/html/
 
-# Télécharger les dépendances
-RUN mvn dependency:go-offline
-
-# Copier tout le code source
-COPY src ./src
-
-# Construire l'application avec Maven (génère un fichier .jar)
-RUN mvn clean package -DskipTests
-
-# Étape 2 : Créer l'image finale
-FROM openjdk:17-jdk-slim
-
-# Définir le répertoire de travail
-WORKDIR /app
-
-# Copier le fichier .jar généré depuis l'étape précédente
-COPY --from=build /app/target/commande-service.jar /app/commande-service.jar
-
-# Exposer le port que l'application Spring Boot va utiliser
-EXPOSE 8080
-
-# Lancer l'application Spring Boot
-CMD ["java", "-jar", "commande-service.jar"]
+# Exposer le port par défaut Apache
+EXPOSE 80
